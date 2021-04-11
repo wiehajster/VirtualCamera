@@ -1,5 +1,6 @@
 import pygame
 import numpy as np
+from datetime import datetime
 pygame.init()
 
 class Point:
@@ -173,67 +174,79 @@ def project(lines):
     return projections 
 
 def draw(projections):
-    for line in projections:
+    for i,line in enumerate(projections):
         p1 = line.points[0]
         p2 = line.points[1]
         pygame.draw.line(screen, RED, p1.coordinates, p2.coordinates)
 
-d = 100
+d = 150
 size = 500
-t_step = 5
+t_step = 10
 r_step = np.pi*5/180
-d_step = 5
-RED = pygame.Color(255, 0, 0) 
+d_step = 10
+directory = 'E:/Semestr 6/Grafika komputerowa/obrazki/'
+RED = pygame.Color(255, 0, 0)
+'''
+colors = np.random.choice(range(256), size=(4,3))
+colors = [tuple(color) for color in colors]
+GREEN = pygame.Color(0, 255, 0)
+BLUE = pygame.Color(0, 0, 255)
+BLACK = pygame.Color(0, 0, 0)
+colors = [RED, GREEN, BLUE, BLACK]
+'''
 lines = load_coordinates('example_coordinates1_output.txt')
 screen = pygame.display.set_mode([size, size])
 
 clock = pygame.time.Clock()
 
-# Run until the user asks to quit
 running = True
 
 while running:
     matrix = np.identity(4)
     t = np.array([0.0, 0.0, 0.0])
     
-    # Did the user click the window close button?
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN:
+                date = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+                name = 'screenshot' + '_' + date + '.png'
+                pygame.image.save(screen, directory+name)
 
     if pygame.key.get_pressed()[pygame.K_UP]:
         t[1] -= t_step
     if pygame.key.get_pressed()[pygame.K_DOWN]:
         t[1] += t_step
-    if pygame.key.get_pressed()[pygame.K_LEFT]:
+    if pygame.key.get_pressed()[pygame.K_a]:
         t[0] += t_step
-    if pygame.key.get_pressed()[pygame.K_RIGHT]:
+    if pygame.key.get_pressed()[pygame.K_d]:
         t[0] -= t_step
     if pygame.key.get_pressed()[pygame.K_w]:
         t[2] -= t_step
     if pygame.key.get_pressed()[pygame.K_s]:
         t[2] += t_step
-    if pygame.key.get_pressed()[pygame.K_z]:
+    if pygame.key.get_pressed()[pygame.K_COMMA]:
         d += d_step
-    if pygame.key.get_pressed()[pygame.K_x]:
+    if pygame.key.get_pressed()[pygame.K_PERIOD]:
         if (d - d_step) > 0:
             d -= d_step
-    if pygame.key.get_pressed()[pygame.K_c]:
+    if pygame.key.get_pressed()[pygame.K_z]:
         r_matrix = rotationOX(-r_step)
         matrix = np.dot(r_matrix, matrix)
-    if pygame.key.get_pressed()[pygame.K_v]:
+    if pygame.key.get_pressed()[pygame.K_x]:
         r_matrix = rotationOX(r_step)
         matrix = np.dot(r_matrix, matrix)
-    if pygame.key.get_pressed()[pygame.K_b]:
+    if pygame.key.get_pressed()[pygame.K_c]:
         r_matrix = rotationOY(r_step)
         matrix = np.dot(r_matrix, matrix)
-    if pygame.key.get_pressed()[pygame.K_n]:
+    if pygame.key.get_pressed()[pygame.K_v]:
         r_matrix = rotationOY(-r_step)
         matrix = np.dot(r_matrix, matrix)
-    if pygame.key.get_pressed()[pygame.K_COMMA]:
+    if pygame.key.get_pressed()[pygame.K_b]:
         r_matrix = rotationOZ(-r_step)
         matrix = np.dot(r_matrix, matrix)
-    if pygame.key.get_pressed()[pygame.K_SLASH]:
+    if pygame.key.get_pressed()[pygame.K_n]:
         r_matrix = rotationOZ(r_step)
         matrix = np.dot(r_matrix, matrix)
 
@@ -241,16 +254,13 @@ while running:
     matrix = np.dot(matrix, t_matrix)
     objects = transform(lines, matrix)
 
-    # Fill the background with white
     screen.fill((255, 255, 255))
 
     projections = project(lines)
     draw(projections)
 
-    # Flip the display
     pygame.display.flip()
 
     clock.tick(10)
 
-# Done! Time to quit.c
 pygame.quit()
