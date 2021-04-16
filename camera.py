@@ -1,6 +1,10 @@
 import pygame
 import numpy as np
 from datetime import datetime
+from collections import OrderedDict
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 pygame.init()
 
 class Point:
@@ -41,13 +45,33 @@ class Line:
     def __repr__(self):
         return f'p1 = ({self.points[0]}), p2 = ({self.points[1]})\n'
 
+class Polygon:
+    def __init__(self, points, lines):
+        self.points = points
+        self.lines = lines
+
+    def get_points_coords(self):
+        points = [p.coordinates[:3] for p in self.points]
+        return points
+
+    def __str__(self):
+        points_str = ''
+        for i,point in enumerate(self.points):
+            points_str += f'p{i} = ({point})\n'
+        return points_str
+
+    def __repr__(self):
+        points_str = ''
+        for i,point in enumerate(self.points):
+            points_str += f'p{i} = ({point})\n'
+        return points_str
 
 def load_coordinates(filename):
     with open(filename, 'r') as f:
-        lines_txt = f.read().split('\n\n')
-        lines = []
-        for line_txt in lines_txt:
-            points_txt = line_txt.split('\n')
+        polygons_txt = f.read().split('\n\n')
+        polygons = []
+        for polygon_txt in polygons_txt:
+            points_txt = polygon_txt.split('\n')
             points = []
             for point_txt in points_txt:
                 coordinates = point_txt.split(' ')
@@ -55,9 +79,14 @@ def load_coordinates(filename):
                 p = Point(coordinates)
                 points.append(p)
             
-            line = Line(points)
-            lines.append(line)
-    return lines
+            lines = []
+            for i in range(-1, len(points)-1, 1):
+                line_points = [points[i], points[i+1]] 
+                line = Line(line_points)
+                lines.append(line)
+            polygon = Polygon(points, lines)
+            polygons.append(polygon)
+    return polygons
 
 def translation(x, y, z):
     matrix = np.array([[1, 0, 0, x],
@@ -151,7 +180,6 @@ def project_cut(p1, p2):
 
         return Line([pro_p1, pro_p2])
 
-
 def project(lines):
     projections = []
 
@@ -172,29 +200,103 @@ def project(lines):
             projections.append(line)
         
     return projections 
-
+'''
 def draw(projections):
     for i,line in enumerate(projections):
         p1 = line.points[0]
         p2 = line.points[1]
         pygame.draw.line(screen, RED, p1.coordinates, p2.coordinates)
+'''
+def draw(polygons):
+    for i, polygon in enumerate(polygons):
+        pygame.draw.polygon(screen, RED, polygon)
 
-d = 150
+def example_plane():
+    fig = plt.figure()
+    ax = Axes3D(fig)
+    x = [0,1,1]
+    y = [0,0,1]
+    z = [0,1,0]
+    verts = [list(zip(x,y,z))]
+    ax.add_collection3d(Poly3DCollection(verts), zs=z)
+    plt.show()
+
+def get_plane_equation(polygon):
+    points = polygon.get_points_coords()
+    p1, p2, p3 = points[:3]
+    p1p2 = p2 - p1
+    p1p3 = p3 - p1
+    cross = np.cross(p1p2, p1p3)
+    D = np.dot(p1, cross)
+    coeffs = np.array([cross[0], cross[1], cross[2], -D])
+    return coeffs
+
+def plot_plane(coeffs, polygon):
+    a,b,c,d = coeffs
+
+    x = np.linspace(-10,10,10)
+    y = np.linspace(-10,10,10)
+
+    X,Y = np.meshgrid(x,y)
+    Z = (d - a*X - b*Y) / c
+
+    fig = plt.figure()
+    ax = Axes3D(fig)
+    print(polygon)
+    surf = ax.plot_surface(X, Y, Z, color='r')
+    ax.add_collection3d(Poly3DCollection(polygon))
+    plt.show()
+
+def test_23(polygon1, polygon2, outside):
+    #wyznaczenie płaszczyzny P
+    coeffs = get_plane_equation(polygon2)
+    #sprawdzenie, czy S jest całkowicie z jednej lub drugiej strony płaszczyzny P
+    polygon1_points = polygon1.get_points_coords()
+    
+    #narysowanie sytuacji w celu testowania
+    #plot_plane(coeffs, polygon1_points)
+    
+    polygon1_points = np.array([np.append(p, 1.0) for p in polygon1_points])
+    result = np.dot(polygon1_points, coeffs)
+    result = np.where(result > 0) if outside == True else np.where(result < 0)
+
+    if len(result[0]) == len(polygon1_points):
+        return True
+    return False
+
+d = 2500
 size = 500
-t_step = 10
-r_step = np.pi*5/180
+t_step = 20
+r_step = np.pi*1/180
 d_step = 10
 directory = 'E:/Semestr 6/Grafika komputerowa/obrazki/'
 RED = pygame.Color(255, 0, 0)
-'''
-colors = np.random.choice(range(256), size=(4,3))
+
+colors = np.random.choice(range(256), size=(24,3))
 colors = [tuple(color) for color in colors]
-GREEN = pygame.Color(0, 255, 0)
-BLUE = pygame.Color(0, 0, 255)
-BLACK = pygame.Color(0, 0, 0)
-colors = [RED, GREEN, BLUE, BLACK]
+
+polygons = load_coordinates('example_coordinates1_output.txt')
 '''
-lines = load_coordinates('example_coordinates1_output.txt')
+S = [[4, 8, 5], [-8, -7, 5], [16, 12, 5]]
+P = [[1, 3, 2], [2, 2, 1], [4, 2, 3]]
+S = [Point(p) for p in S]
+S = Polygon(S, [])
+
+P = [Point(p) for p in P]
+P = Polygon(P, [])
+
+print(S)
+print(P)
+print(test_23(S, P, True)) 
+'''
+
+t = np.array([0.0, 0.0, 6000.0])
+t_matrix = translation(t[0], t[1], t[2])
+matrix = np.identity(4)
+matrix = np.dot(matrix, t_matrix)
+for polygon in polygons:
+    transform(polygon.lines, matrix)
+
 screen = pygame.display.set_mode([size, size])
 
 clock = pygame.time.Clock()
@@ -252,12 +354,17 @@ while running:
 
     t_matrix = translation(t[0], t[1], t[2])
     matrix = np.dot(matrix, t_matrix)
-    objects = transform(lines, matrix)
+    projected_polygons = []
+    for polygon in polygons:
+        transform(polygon.lines, matrix)
+        projected_lines = project(polygon.lines)
+        projected_points = []
+        projected_points = [line.points[0].coordinates for line in projected_lines]
+        if len(projected_points) > 2:
+            projected_polygons.append(projected_points)
 
     screen.fill((255, 255, 255))
-
-    projections = project(lines)
-    draw(projections)
+    draw(projected_polygons)
 
     pygame.display.flip()
 
