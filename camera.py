@@ -81,9 +81,11 @@ def compute_z(point, coeffs):
     return z
 
 def cut_polygon(polygon1, polygon2):
+    #wzięcie wszystkich współrzędnych oprócz ostatniej, która jest potrzebna tylko do liczenia rzutów
     pol1_points = polygon1.get_points_coords()
     pol2_points = polygon2.get_points_coords()
-
+    
+    #[np.array([x1,y1,z1]),np.array([x2,y2,z2])] -> [(x1, y1), (x2, y2)] 
     pol1_xy = list(map(lambda p: (p[0],p[1]), pol1_points))
     pol2_xy = list(map(lambda p: (p[0],p[1]), pol2_points))
 
