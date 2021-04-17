@@ -5,6 +5,10 @@ from collections import OrderedDict
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+from shapely.geometry import Polygon as SPolygon, MultiPolygon
+import scipy as sp
+import matplotlib.colors as colors
+
 pygame.init()
 
 class Point:
@@ -65,6 +69,49 @@ class Polygon:
         for i,point in enumerate(self.points):
             points_str += f'p{i} = ({point})\n'
         return points_str
+
+def convert2PolygonList(polygon):
+    if isinstance(polygon, MultiPolygon):
+        return list(polygon)
+    return [polygon]
+
+def compute_z(point, coeffs):
+    A, B, C, D = coeffs
+    z = (np.dot(point, [A,B]) + D)/-C
+    return z
+
+def cut_polygon(polygon1, polygon2):
+    pol1_points = polygon1.get_points_coords()
+    pol2_points = polygon2.get_points_coords()
+
+    pol1_xy = list(map(lambda p: (p[0],p[1]), pol1_points))
+    pol2_xy = list(map(lambda p: (p[0],p[1]), pol2_points))
+
+    pol1 = SPolygon(pol1_xy)
+    pol2 = SPolygon(pol2_xy)
+
+    intersection = pol1.intersection(pol2)
+    nonoverlap = pol1.difference(intersection)
+
+    polygons = list(map(convert2PolygonList, [intersection, nonoverlap]))
+
+    coeffs = get_plane_equation(polygon1)   
+
+    new_polygons = []
+    for polygon in polygons:
+        for pol in polygon:
+            pol = [Point([c1, c2, compute_z([c1, c2], coeffs)]) for c1, c2 in zip(pol.exterior.xy[0], pol.exterior.xy[1])][:-1]
+
+            lines = []
+            for i in range(-1, len(pol)-1, 1):
+                line_points = [pol[i], pol[i+1]] 
+                line = Line(line_points)
+                lines.append(line)
+
+            pol = Polygon(pol, lines)
+            new_polygons.append(pol)
+
+    return new_polygons
 
 def load_coordinates(filename):
     with open(filename, 'r') as f:
@@ -209,7 +256,7 @@ def draw(projections):
 '''
 def draw(polygons):
     for i, polygon in enumerate(polygons):
-        pygame.draw.polygon(screen, RED, polygon)
+        pygame.draw.polygon(screen, RED, polygon, 1)
 
 def example_plane():
     fig = plt.figure()
@@ -247,6 +294,18 @@ def plot_plane(coeffs, polygon):
     ax.add_collection3d(Poly3DCollection(polygon))
     plt.show()
 
+def plot_polygons(polygons):
+    fig = plt.figure()
+    ax = Axes3D(fig)
+    for polygon in polygons:
+        polygon = polygon.get_points_coords()
+        polygon = [list(polygon)]
+        tri = Poly3DCollection(polygon)
+        #tri.set_color(colors.rgb2hex(sp.rand(3)))
+        tri.set_edgecolor('k')
+        ax.add_collection3d(tri)
+    plt.show()
+
 def test_23(polygon1, polygon2, outside):
     #wyznaczenie płaszczyzny P
     coeffs = get_plane_equation(polygon2)
@@ -264,6 +323,7 @@ def test_23(polygon1, polygon2, outside):
         return True
     return False
 
+
 d = 2500
 size = 500
 t_step = 20
@@ -272,13 +332,13 @@ d_step = 10
 directory = 'E:/Semestr 6/Grafika komputerowa/obrazki/'
 RED = pygame.Color(255, 0, 0)
 
-colors = np.random.choice(range(256), size=(24,3))
-colors = [tuple(color) for color in colors]
+#colors = np.random.choice(range(256), size=(24,3))
+#colors = [tuple(color) for color in colors]
 
 polygons = load_coordinates('example_coordinates1_output.txt')
-'''
-S = [[4, 8, 5], [-8, -7, 5], [16, 12, 5]]
-P = [[1, 3, 2], [2, 2, 1], [4, 2, 3]]
+
+S = [[0,0,0], [2,0,0], [2,5,0], [0,5,0]]
+P = [[-2,2,5], [4,2,-2], [4,3,-2], [-2,3,5]]
 S = [Point(p) for p in S]
 S = Polygon(S, [])
 
@@ -287,7 +347,12 @@ P = Polygon(P, [])
 
 print(S)
 print(P)
-print(test_23(S, P, True)) 
+#print(test_23(S, P, True))
+new_polygons = cut_polygon(S,P)
+#print(new_polygons)
+plot_polygons([S,P])
+plot_polygons(new_polygons)
+
 '''
 
 t = np.array([0.0, 0.0, 6000.0])
@@ -360,7 +425,7 @@ while running:
         projected_lines = project(polygon.lines)
         projected_points = []
         projected_points = [line.points[0].coordinates for line in projected_lines]
-        if len(projected_points) > 2:
+        if len(projected_points) >= 2:
             projected_polygons.append(projected_points)
 
     screen.fill((255, 255, 255))
@@ -371,3 +436,4 @@ while running:
     clock.tick(10)
 
 pygame.quit()
+'''
