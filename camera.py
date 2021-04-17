@@ -6,8 +6,6 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
-pygame.init()
-
 
 class Point:
     def __init__(self, coordinates):
@@ -272,65 +270,65 @@ def plot_plane(coeffs, polygon):
     plt.show()
 
 
-def test_01(polygons):
-    sorted_polygons = sorted(polygons, key=lambda x: max(
-        [x.get_points_coords()[0][2], x.get_points_coords()[1][2], x.get_points_coords()[2][2],
-         x.get_points_coords()[3][2]]), reverse=True)
-
-    reorder = False
-
-    s_zmax = max([sorted_polygons[0].get_points_coords()[0][2], sorted_polygons[0].get_points_coords()[1][2],
-                  sorted_polygons[0].get_points_coords()[2][2],
-                  sorted_polygons[0].get_points_coords()[3][2]])
-    s_zmin = min([sorted_polygons[0].get_points_coords()[0][2], sorted_polygons[0].get_points_coords()[1][2],
-                  sorted_polygons[0].get_points_coords()[2][2],
-                  sorted_polygons[0].get_points_coords()[3][2]])
-
-    s_xr = max([sorted_polygons[0].get_points_coords()[0][0], sorted_polygons[0].get_points_coords()[1][0],
-                sorted_polygons[0].get_points_coords()[2][0],
-                sorted_polygons[0].get_points_coords()[3][0]])
-    s_xl = min([sorted_polygons[0].get_points_coords()[0][0], sorted_polygons[0].get_points_coords()[1][0],
-                sorted_polygons[0].get_points_coords()[2][0],
-                sorted_polygons[0].get_points_coords()[3][0]])
-
-    s_yr = max([sorted_polygons[0].get_points_coords()[0][1], sorted_polygons[0].get_points_coords()[1][1],
-                sorted_polygons[0].get_points_coords()[2][1],
-                sorted_polygons[0].get_points_coords()[3][1]])
-    s_yl = min([sorted_polygons[0].get_points_coords()[0][1], sorted_polygons[0].get_points_coords()[1][1],
-                sorted_polygons[0].get_points_coords()[2][1],
-                sorted_polygons[0].get_points_coords()[3][1]])
-
-    for polygon in sorted_polygons[1:]:
-        p_zmax = max([polygon.get_points_coords()[0][2], polygon.get_points_coords()[1][2],
-                      polygon.get_points_coords()[2][2],
-                      polygon.get_points_coords()[3][2]])
-        p_zmin = min([polygon.get_points_coords()[0][2], polygon.get_points_coords()[1][2],
-                      polygon.get_points_coords()[2][2],
-                      polygon.get_points_coords()[3][2]])
-
-        p_xr = max([polygon.get_points_coords()[0][0], polygon.get_points_coords()[1][0],
-                    polygon.get_points_coords()[2][0],
-                    polygon.get_points_coords()[3][0]])
-        p_xl = min([polygon.get_points_coords()[0][0], polygon.get_points_coords()[1][0],
-                    polygon.get_points_coords()[2][0],
-                    polygon.get_points_coords()[3][0]])
-
-        p_yr = max([polygon.get_points_coords()[0][1], polygon.get_points_coords()[1][1],
-                    polygon.get_points_coords()[2][1],
-                    polygon.get_points_coords()[3][1]])
-        p_yl = min([polygon.get_points_coords()[0][1], polygon.get_points_coords()[1][1],
-                    polygon.get_points_coords()[2][1],
-                    polygon.get_points_coords()[3][1]])
-
-        if s_zmin <= p_zmax:  # idziemy do Testu 1
-            if (s_xr <= s_xl) or \
-                    ((p_zmax <= s_zmax and p_zmin >= s_zmin) and (p_xr <= s_xr and p_xl >= s_xl)):
-                continue
-            elif (s_xl <= p_xl and s_xr >= p_xl and s_xr <= p_xr) or \
-                    (s_yl <= p_yl and s_yr >= p_yl and p_yr <= p_yr):  # idziemy do Testu 2
-                pass
-        else:
-            continue
+# def test_01(polygons):
+#     sorted_polygons = sorted(polygons, key=lambda x: max(
+#         [x.get_points_coords()[0][2], x.get_points_coords()[1][2], x.get_points_coords()[2][2],
+#          x.get_points_coords()[3][2]]), reverse=True)
+#
+#     reorder = False
+#
+#     s_zmax = max([sorted_polygons[0].get_points_coords()[0][2], sorted_polygons[0].get_points_coords()[1][2],
+#                   sorted_polygons[0].get_points_coords()[2][2],
+#                   sorted_polygons[0].get_points_coords()[3][2]])
+#     s_zmin = min([sorted_polygons[0].get_points_coords()[0][2], sorted_polygons[0].get_points_coords()[1][2],
+#                   sorted_polygons[0].get_points_coords()[2][2],
+#                   sorted_polygons[0].get_points_coords()[3][2]])
+#
+#     s_xr = max([sorted_polygons[0].get_points_coords()[0][0], sorted_polygons[0].get_points_coords()[1][0],
+#                 sorted_polygons[0].get_points_coords()[2][0],
+#                 sorted_polygons[0].get_points_coords()[3][0]])
+#     s_xl = min([sorted_polygons[0].get_points_coords()[0][0], sorted_polygons[0].get_points_coords()[1][0],
+#                 sorted_polygons[0].get_points_coords()[2][0],
+#                 sorted_polygons[0].get_points_coords()[3][0]])
+#
+#     s_yr = max([sorted_polygons[0].get_points_coords()[0][1], sorted_polygons[0].get_points_coords()[1][1],
+#                 sorted_polygons[0].get_points_coords()[2][1],
+#                 sorted_polygons[0].get_points_coords()[3][1]])
+#     s_yl = min([sorted_polygons[0].get_points_coords()[0][1], sorted_polygons[0].get_points_coords()[1][1],
+#                 sorted_polygons[0].get_points_coords()[2][1],
+#                 sorted_polygons[0].get_points_coords()[3][1]])
+#
+#     for polygon in sorted_polygons[1:]:
+#         p_zmax = max([polygon.get_points_coords()[0][2], polygon.get_points_coords()[1][2],
+#                       polygon.get_points_coords()[2][2],
+#                       polygon.get_points_coords()[3][2]])
+#         p_zmin = min([polygon.get_points_coords()[0][2], polygon.get_points_coords()[1][2],
+#                       polygon.get_points_coords()[2][2],
+#                       polygon.get_points_coords()[3][2]])
+#
+#         p_xr = max([polygon.get_points_coords()[0][0], polygon.get_points_coords()[1][0],
+#                     polygon.get_points_coords()[2][0],
+#                     polygon.get_points_coords()[3][0]])
+#         p_xl = min([polygon.get_points_coords()[0][0], polygon.get_points_coords()[1][0],
+#                     polygon.get_points_coords()[2][0],
+#                     polygon.get_points_coords()[3][0]])
+#
+#         p_yr = max([polygon.get_points_coords()[0][1], polygon.get_points_coords()[1][1],
+#                     polygon.get_points_coords()[2][1],
+#                     polygon.get_points_coords()[3][1]])
+#         p_yl = min([polygon.get_points_coords()[0][1], polygon.get_points_coords()[1][1],
+#                     polygon.get_points_coords()[2][1],
+#                     polygon.get_points_coords()[3][1]])
+#
+#         if s_zmin <= p_zmax:  # idziemy do Testu 1
+#             if (s_xr <= s_xl) or \
+#                     ((p_zmax <= s_zmax and p_zmin >= s_zmin) and (p_xr <= s_xr and p_xl >= s_xl)):
+#                 continue
+#             elif (s_xl <= p_xl and s_xr >= p_xl and s_xr <= p_xr) or \
+#                     (s_yl <= p_yl and s_yr >= p_yl and p_yr <= p_yr):  # idziemy do Testu 2
+#                 pass
+#         else:
+#             continue
 
 
 def test_23(polygon1, polygon2, outside):
@@ -351,108 +349,111 @@ def test_23(polygon1, polygon2, outside):
     return False
 
 
-d = 2500
-size = 500
-t_step = 20
-r_step = np.pi * 1 / 180
-d_step = 10
-directory = 'E:/Semestr 6/Grafika komputerowa/obrazki/'
-RED = pygame.Color(255, 0, 0)
+if __name__ == '__main__':
+    d = 2500
+    size = 500
+    t_step = 20
+    r_step = np.pi * 1 / 180
+    d_step = 10
+    directory = 'E:/Semestr 6/Grafika komputerowa/obrazki/'
+    RED = pygame.Color(255, 0, 0)
 
-colors = np.random.choice(range(256), size=(24, 3))
-colors = [tuple(color) for color in colors]
+    colors = np.random.choice(range(256), size=(24, 3))
+    colors = [tuple(color) for color in colors]
 
-polygons = load_coordinates('example_coordinates1_output.txt')
-'''
-S = [[4, 8, 5], [-8, -7, 5], [16, 12, 5]]
-P = [[1, 3, 2], [2, 2, 1], [4, 2, 3]]
-S = [Point(p) for p in S]
-S = Polygon(S, [])
-P = [Point(p) for p in P]
-P = Polygon(P, [])
-print(S)
-print(P)
-print(test_23(S, P, True)) 
-'''
+    polygons = load_coordinates('example_coordinates1_output.txt')
+    '''
+    S = [[4, 8, 5], [-8, -7, 5], [16, 12, 5]]
+    P = [[1, 3, 2], [2, 2, 1], [4, 2, 3]]
+    S = [Point(p) for p in S]
+    S = Polygon(S, [])
+    P = [Point(p) for p in P]
+    P = Polygon(P, [])
+    print(S)
+    print(P)
+    print(test_23(S, P, True)) 
+    '''
 
-t = np.array([0.0, 0.0, 6000.0])
-t_matrix = translation(t[0], t[1], t[2])
-matrix = np.identity(4)
-matrix = np.dot(matrix, t_matrix)
-for polygon in polygons:
-    transform(polygon.lines, matrix)
+    pygame.init()
 
-screen = pygame.display.set_mode([size, size])
-
-clock = pygame.time.Clock()
-
-running = True
-
-while running:
-    matrix = np.identity(4)
-    t = np.array([0.0, 0.0, 0.0])
-
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RETURN:
-                date = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-                name = 'screenshot' + '_' + date + '.png'
-                pygame.image.save(screen, directory + name)
-
-    if pygame.key.get_pressed()[pygame.K_UP]:
-        t[1] -= t_step
-    if pygame.key.get_pressed()[pygame.K_DOWN]:
-        t[1] += t_step
-    if pygame.key.get_pressed()[pygame.K_a]:
-        t[0] += t_step
-    if pygame.key.get_pressed()[pygame.K_d]:
-        t[0] -= t_step
-    if pygame.key.get_pressed()[pygame.K_w]:
-        t[2] -= t_step
-    if pygame.key.get_pressed()[pygame.K_s]:
-        t[2] += t_step
-    if pygame.key.get_pressed()[pygame.K_COMMA]:
-        d += d_step
-    if pygame.key.get_pressed()[pygame.K_PERIOD]:
-        if (d - d_step) > 0:
-            d -= d_step
-    if pygame.key.get_pressed()[pygame.K_z]:
-        r_matrix = rotationOX(-r_step)
-        matrix = np.dot(r_matrix, matrix)
-    if pygame.key.get_pressed()[pygame.K_x]:
-        r_matrix = rotationOX(r_step)
-        matrix = np.dot(r_matrix, matrix)
-    if pygame.key.get_pressed()[pygame.K_c]:
-        r_matrix = rotationOY(r_step)
-        matrix = np.dot(r_matrix, matrix)
-    if pygame.key.get_pressed()[pygame.K_v]:
-        r_matrix = rotationOY(-r_step)
-        matrix = np.dot(r_matrix, matrix)
-    if pygame.key.get_pressed()[pygame.K_b]:
-        r_matrix = rotationOZ(-r_step)
-        matrix = np.dot(r_matrix, matrix)
-    if pygame.key.get_pressed()[pygame.K_n]:
-        r_matrix = rotationOZ(r_step)
-        matrix = np.dot(r_matrix, matrix)
-
+    t = np.array([0.0, 0.0, 6000.0])
     t_matrix = translation(t[0], t[1], t[2])
+    matrix = np.identity(4)
     matrix = np.dot(matrix, t_matrix)
-    projected_polygons = []
     for polygon in polygons:
         transform(polygon.lines, matrix)
-        projected_lines = project(polygon.lines)
-        projected_points = []
-        projected_points = [line.points[0].coordinates for line in projected_lines]
-        if len(projected_points) > 2:
-            projected_polygons.append(projected_points)
 
-    screen.fill((255, 255, 255))
-    draw(projected_polygons)
+    screen = pygame.display.set_mode([size, size])
 
-    pygame.display.flip()
+    clock = pygame.time.Clock()
 
-    clock.tick(10)
+    running = True
 
-pygame.quit()
+    while running:
+        matrix = np.identity(4)
+        t = np.array([0.0, 0.0, 0.0])
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    date = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+                    name = 'screenshot' + '_' + date + '.png'
+                    pygame.image.save(screen, directory + name)
+
+        if pygame.key.get_pressed()[pygame.K_UP]:
+            t[1] -= t_step
+        if pygame.key.get_pressed()[pygame.K_DOWN]:
+            t[1] += t_step
+        if pygame.key.get_pressed()[pygame.K_a]:
+            t[0] += t_step
+        if pygame.key.get_pressed()[pygame.K_d]:
+            t[0] -= t_step
+        if pygame.key.get_pressed()[pygame.K_w]:
+            t[2] -= t_step
+        if pygame.key.get_pressed()[pygame.K_s]:
+            t[2] += t_step
+        if pygame.key.get_pressed()[pygame.K_COMMA]:
+            d += d_step
+        if pygame.key.get_pressed()[pygame.K_PERIOD]:
+            if (d - d_step) > 0:
+                d -= d_step
+        if pygame.key.get_pressed()[pygame.K_z]:
+            r_matrix = rotationOX(-r_step)
+            matrix = np.dot(r_matrix, matrix)
+        if pygame.key.get_pressed()[pygame.K_x]:
+            r_matrix = rotationOX(r_step)
+            matrix = np.dot(r_matrix, matrix)
+        if pygame.key.get_pressed()[pygame.K_c]:
+            r_matrix = rotationOY(r_step)
+            matrix = np.dot(r_matrix, matrix)
+        if pygame.key.get_pressed()[pygame.K_v]:
+            r_matrix = rotationOY(-r_step)
+            matrix = np.dot(r_matrix, matrix)
+        if pygame.key.get_pressed()[pygame.K_b]:
+            r_matrix = rotationOZ(-r_step)
+            matrix = np.dot(r_matrix, matrix)
+        if pygame.key.get_pressed()[pygame.K_n]:
+            r_matrix = rotationOZ(r_step)
+            matrix = np.dot(r_matrix, matrix)
+
+        t_matrix = translation(t[0], t[1], t[2])
+        matrix = np.dot(matrix, t_matrix)
+        projected_polygons = []
+        for polygon in polygons:
+            transform(polygon.lines, matrix)
+            projected_lines = project(polygon.lines)
+            projected_points = []
+            projected_points = [line.points[0].coordinates for line in projected_lines]
+            if len(projected_points) > 2:
+                projected_polygons.append(projected_points)
+
+        screen.fill((255, 255, 255))
+        draw(projected_polygons)
+
+        pygame.display.flip()
+
+        clock.tick(10)
+
+    pygame.quit()
