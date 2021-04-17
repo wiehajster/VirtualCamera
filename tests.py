@@ -1,3 +1,6 @@
+from shapely.geometry import Polygon as ShapelyPolygon
+
+
 def test_0(polygon_s, polygon_p):
     """Jak funkcja zwróci True to jest depth overlap"""
     # s_zmin = min([polygon_s.get_points_coords()[0][2], polygon_s.get_points_coords()[1][2],
@@ -105,8 +108,10 @@ def test_1(polygon_s, polygon_p):
     p_zmax = max(p_z_list)
     p_zmin = min(p_z_list)
 
-    if (s_xmax <= p_xmin or p_xmax <= s_xmin or s_zmax <= p_zmin or p_zmax <= s_zmin) and (
-            s_xmax <= p_xmin or p_xmax <= s_xmin or s_ymax <= p_ymin or p_ymax <= s_ymin):
+    if ((s_xmax <= p_xmin or p_xmax <= s_xmin or s_zmax <= p_zmin or p_zmax <= s_zmin) and (
+            s_xmax <= p_xmin or p_xmax <= s_xmin or s_ymax <= p_ymin or p_ymax <= s_ymin)) or \
+            (p_xmax <= s_xmin or s_xmax <= p_xmin or p_zmax <= s_zmin or s_zmax <= p_zmin) and (
+            p_xmax <= s_xmin or s_xmax <= p_xmin or p_ymax <= s_ymin or s_ymax <= p_ymin):
         return 1  # passed Test 1_1 - nie wykonujemy kolejnych testów
 
     if ((s_xmin < p_xmin and p_xmax < s_xmax and s_zmin < p_zmin and p_zmax < s_zmax) or
@@ -119,9 +124,10 @@ def test_1(polygon_s, polygon_p):
         (s_xmin < p_xmin < s_xmax < p_xmax and s_ymin < p_ymin and p_ymax < s_ymax)) or \
             ((p_xmin < s_xmin < p_xmax < s_xmax and p_zmin < s_zmin and s_zmax < p_zmax) or
              (p_xmin < s_xmin < p_xmax < s_xmax and p_ymin < s_ymin and s_ymax < p_ymax)):
-        return 3
+        return 3  # wykonujemy kolejne testy
 
     return -1
+
 
 # def test_1_1(polygon_s, polygon_p):
 #     """Jak funkcja zwróci True to bounding boxes nie nachodzą na siebie"""
@@ -277,3 +283,20 @@ def test_1(polygon_s, polygon_p):
 #         return True
 #
 #     return False
+
+
+def test_4(polygon_s, polygon_p):
+    """Funkcja zwraca True jeżeli ściany nie przecinają się"""
+    polygon_s_points = polygon_s.get_points_coords()
+    polygon_p_points = polygon_p.get_points_coords()
+    polygon_s_xy = list(map(lambda p: (p[0], p[1]), polygon_s_points))
+    polygon_p_xy = list(map(lambda p: (p[0], p[1]), polygon_p_points))
+    shapely_polygon_s = ShapelyPolygon(polygon_s_xy)
+    shapely_polygon_p = ShapelyPolygon(polygon_p_xy)
+
+    intersection = shapely_polygon_s.intersection(shapely_polygon_p)
+
+    if intersection.is_empty:
+        return True  # ściany nie przecinają się
+
+    return False
